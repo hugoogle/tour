@@ -1,31 +1,36 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Guia Interativo</title>
-  <style>
-    /* Exemplo de estilo mínimo pro highlight */
-    .tour-highlight {
-      outline: 3px solid #ff9800;
-      outline-offset: 4px;
-    }
-    .tour-tooltip {
-      position: absolute;
-      background: #333;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      z-index: 1000;
-      max-width: 300px;
-    }
-  </style>
-</head>
-<body>
-  <h1 id="step1">Bem-vindo!</h1>
-  <button id="step2">Clique aqui para começar</button>
+document.addEventListener("DOMContentLoaded", function () {
+  const steps = [
+    { element: "#step1", message: "Este é o título da página." },
+    { element: "#step2", message: "Clique neste botão para começar!" }
+  ];
 
-  <!-- Injetar o script no final do body -->
-  <script src="tour-script.js"></script>
-</body>
-</html>
+  let index = 0;
+
+  function showStep(step) {
+    const el = document.querySelector(step.element);
+    if (!el) return;
+
+    el.classList.add("tour-highlight");
+
+    const tooltip = document.createElement("div");
+    tooltip.className = "tour-tooltip";
+    tooltip.innerText = step.message;
+
+    document.body.appendChild(tooltip);
+
+    const rect = el.getBoundingClientRect();
+    tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
+    tooltip.style.left = `${rect.left + window.scrollX}px`;
+
+    el.addEventListener("click", () => {
+      el.classList.remove("tour-highlight");
+      tooltip.remove();
+      index++;
+      if (index < steps.length) {
+        showStep(steps[index]);
+      }
+    });
+  }
+
+  showStep(steps[index]);
+});
