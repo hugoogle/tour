@@ -1,38 +1,54 @@
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
+  // Definir passos do tour
   const steps = [
-    { element: "#openModalBtn", message: "Clique aqui para abrir o modal." },
-    { element: "#modalContent", message: "Este é o conteúdo do modal." }
+    { selector: '#example-element', text: 'Este é um exemplo de elemento!' },
+    { selector: '#another-element', text: 'Aqui está outro exemplo!' }
   ];
 
-  let current = 0;
+  let currentStep = 0;
 
+  // Função para mostrar um passo do tour
   function showStep(stepIndex) {
     const step = steps[stepIndex];
-    const el = document.querySelector(step.element);
-    if (!el) return;
+    if (!step) return;
 
-    el.classList.add("tour-highlight");
+    const element = document.querySelector(step.selector);
+    if (element) {
+      const tooltip = document.createElement('div');
+      tooltip.innerText = step.text;
+      tooltip.style.position = 'absolute';
+      tooltip.style.top = `${element.offsetTop + element.offsetHeight + 10}px`;
+      tooltip.style.left = `${element.offsetLeft}px`;
+      tooltip.style.padding = '8px';
+      tooltip.style.background = '#333';
+      tooltip.style.color = '#fff';
+      tooltip.style.borderRadius = '5px';
+      tooltip.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.3)';
+      tooltip.style.zIndex = '9999';
+      document.body.appendChild(tooltip);
 
-    const tooltip = document.createElement("div");
-    tooltip.className = "tour-tooltip";
-    tooltip.innerText = step.message;
-    document.body.appendChild(tooltip);
+      // Botão de próximo passo
+      const nextBtn = document.createElement('button');
+      nextBtn.innerText = 'Próximo';
+      nextBtn.style.position = 'absolute';
+      nextBtn.style.top = `${tooltip.offsetTop + tooltip.offsetHeight + 10}px`;
+      nextBtn.style.left = `${tooltip.offsetLeft}px`;
+      nextBtn.style.padding = '5px 10px';
+      nextBtn.style.border = 'none';
+      nextBtn.style.background = '#6200ea';
+      nextBtn.style.color = '#fff';
+      nextBtn.style.borderRadius = '5px';
+      nextBtn.style.cursor = 'pointer';
+      document.body.appendChild(nextBtn);
 
-    const rect = el.getBoundingClientRect();
-    tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
-    tooltip.style.left = `${rect.left + window.scrollX}px`;
-
-    const next = () => {
-      el.classList.remove("tour-highlight");
-      tooltip.remove();
-      current++;
-      if (current < steps.length) {
-        showStep(current);
-      }
-    };
-
-    el.addEventListener("click", next, { once: true });
+      nextBtn.onclick = function () {
+        document.body.removeChild(tooltip);
+        document.body.removeChild(nextBtn);
+        showStep(++currentStep); // Passa para o próximo passo
+      };
+    }
   }
 
-  showStep(current);
-});
+  // Iniciar o tour
+  showStep(currentStep);
+})();
