@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Injetor de Tour</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    #status {
+      margin-top: 10px;
+      color: #d32f2f;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Injetar Tour</h1>
+  <input id="url" type="text" placeholder="https://exemplo.com" value="http://localhost:8080/erp-web/app/" size="40" />
+  <button onclick="abrirComScript()">Abrir com Tour</button>
+  <div id="status"></div>
+
+  <script>
+    function abrirComScript() {
+      const url = document.getElementById('url').value;
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = "Abrindo página...";
+
+      // Abre a janela imediatamente (evita bloqueio de pop-ups)
+      const win = window.open(url, '_blank');
+      if (!win) {
+        statusEl.textContent = "O navegador bloqueou a janela pop-up. Por favor, permita pop-ups para este site.";
+        return;
+      }
+
+      // Comunicação entre janelas usando postMessage
+      const scriptContent = `(function() {
+        if (window.__tour_loaded__) return;
+        window.__tour_loaded__ = true;
+
+        console.log('Script do tour carregado!');
+
+        const steps = [];
+        const button = document.createElement('button');
+        button.innerText = '🧭 Criar Tour';
+        Object.assign(button.style, {
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 9999,
+          padding: '10px 15px',
+          background: '#6200ea',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          fontSize: '16px'
+        });
+        document.body.appendChild(button);
+
+        button.onclick = () => alert('Tour funcionando!');
+      })();`;
+
+      win.onload = () => {
+        win.postMessage({ type: 'injectScript', script: scriptContent }, url);
+      };
+
+      window.addEventListener('message', (event) => {
+        if (event.origin !== new URL(url).origin) return; // Verifica a origem da mensagem
+        if (event.data.type === 'scriptInjected') {
+          statusEl.textContent = "Script injetado com sucesso!";
+        }
+      });
+    }
+
+    // Listener para injetar o script na janela aberta
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'injectScript') {
+        const script = document.createElement('script');
+        script.textContent = event.data.script;
+        document.body.appendChild(script);
+        event.source.postMessage({ type: 'scriptInjected' }, event.origin);
+      }
+    });
+  </script>
+</body>
+</html>
