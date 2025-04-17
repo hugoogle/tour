@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecionando...</title>
+    <script>
+        // Pega a URL do parâmetro e redireciona
+        const params = new URLSearchParams(window.location.search);
+        const targetUrl = params.get("url");
+        
+        if (targetUrl) {
+            // Redireciona para a URL informada
+            window.location.href = targetUrl;
+            
+            // Aguarda o carregamento da página e injeta o script
+            window.onload = function() {
+                const script = document.createElement("script");
+                script.src = "injector.js"; // Script do tour
+                document.body.appendChild(script);
+            };
+        } else {
+            alert("URL não encontrada! Volte e insira uma URL válida.");
+            window.location.href = "index.html";
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecionando e injetando o script...</p>
+</body>
+</html>
