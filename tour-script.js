@@ -1,12 +1,13 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   const steps = [
-    { element: "#step1", message: "Este é o título da página." },
-    { element: "#step2", message: "Clique neste botão para começar!" }
+    { element: "#openModalBtn", message: "Clique aqui para abrir o modal." },
+    { element: "#modalContent", message: "Este é o conteúdo do modal." }
   ];
 
-  let index = 0;
+  let current = 0;
 
-  function showStep(step) {
+  function showStep(stepIndex) {
+    const step = steps[stepIndex];
     const el = document.querySelector(step.element);
     if (!el) return;
 
@@ -15,22 +16,23 @@ document.addEventListener("DOMContentLoaded", function () {
     const tooltip = document.createElement("div");
     tooltip.className = "tour-tooltip";
     tooltip.innerText = step.message;
-
     document.body.appendChild(tooltip);
 
     const rect = el.getBoundingClientRect();
     tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
     tooltip.style.left = `${rect.left + window.scrollX}px`;
 
-    el.addEventListener("click", () => {
+    const next = () => {
       el.classList.remove("tour-highlight");
       tooltip.remove();
-      index++;
-      if (index < steps.length) {
-        showStep(steps[index]);
+      current++;
+      if (current < steps.length) {
+        showStep(current);
       }
-    });
+    };
+
+    el.addEventListener("click", next, { once: true });
   }
 
-  showStep(steps[index]);
+  showStep(current);
 });
